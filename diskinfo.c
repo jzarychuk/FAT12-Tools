@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define OS_NAME_START_BYTE 3
-#define OS_NAME_LENGTH_BYTES 8
+const int OS_NAME_START_BYTE = 3;
+const int OS_NAME_LENGTH_BYTES = 8;
 
 int main (int argc, char* argv[]) {
 
@@ -26,7 +26,12 @@ int main (int argc, char* argv[]) {
 	}
 
 	// Read the OS name
-	char os_name[OS_NAME_LENGTH_BYTES + 1] = {0};
+	char* os_name = (char*)calloc(OS_NAME_LENGTH_BYTES + 1, sizeof(char)); // Using calloc to avoid VLA
+	if (os_name == NULL) {
+		perror("Memory allocation failed");
+		fclose(file);
+		exit(EXIT_FAILURE);
+	}
 	if (fread(os_name, 1, OS_NAME_LENGTH_BYTES, file) != OS_NAME_LENGTH_BYTES) { // Read one byte at a time into os_name for OS_NAME_LENGTH times
 		perror("Error reading OS name");
 		fclose(file);
