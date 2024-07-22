@@ -40,5 +40,6 @@ int main (int argc, char* argv[]) {
 
 	fprintf(stdout, "OS Name: %s\n", os_name);
 
+	free(os_name);
 	return 0;
 }
