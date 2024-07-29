@@ -61,6 +61,33 @@ char* get_label(FILE* file) {
 
 }
 
+// Function to get the OS name of the provided disk image
+char* get_os_name(FILE* file) {
+
+	// Seek to position of OS name in boot sector
+        if (fseek(file, OS_NAME_START_BYTE, SEEK_SET) != 0) { // Move file pointer OS_NAME_START_BYTE number of bytes relative to start of file
+                perror("Error seeking to OS name position of boot sector");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+        // Read the OS name from boot sector
+        char* os_name = (char*)calloc(OS_NAME_LENGTH_BYTES + 1, sizeof(char)); // Using calloc to avoid VLA
+        if (os_name == NULL) {
+                perror("Memory allocation failed");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+        if (fread(os_name, 1, OS_NAME_LENGTH_BYTES, file) != OS_NAME_LENGTH_BYTES) { // Read one byte at a time into os_name for OS_NAME_LENGTH_BYTES number of times
+                perror("Error reading OS name");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	return os_name;
+
+}
+
 int main (int argc, char* argv[]) {
 
 	if (argc < 2) {
@@ -75,27 +102,10 @@ int main (int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	// Seek to position of OS name in boot sector
-	if (fseek(file, OS_NAME_START_BYTE, SEEK_SET) != 0) { // Move file pointer OS_NAME_START_BYTE number of bytes relative to start of file
-		perror("Error seeking to OS name position of boot sector");
-		fclose(file);
-		exit(EXIT_FAILURE);
-	}
+	// Get the OS name
+	char* os_name = get_os_name(file);
 
-	// Read the OS name from boot sector
-	char* os_name = (char*)calloc(OS_NAME_LENGTH_BYTES + 1, sizeof(char)); // Using calloc to avoid VLA
-	if (os_name == NULL) {
-		perror("Memory allocation failed");
-		fclose(file);
-		exit(EXIT_FAILURE);
-	}
-	if (fread(os_name, 1, OS_NAME_LENGTH_BYTES, file) != OS_NAME_LENGTH_BYTES) { // Read one byte at a time into os_name for OS_NAME_LENGTH_BYTES number of times
-		perror("Error reading OS name");
-		fclose(file);
-		exit(EXIT_FAILURE);
-	}
-
-	// Get the label of the disk
+	// Get the label
 	char* label = get_label(file);
 
 	fprintf(stdout, "OS Name: %s\n", os_name);
@@ -104,4 +114,5 @@ int main (int argc, char* argv[]) {
 	free(label);
 	free(os_name);
 	return 0;
+
 }
