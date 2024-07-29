@@ -11,6 +11,8 @@ const int ROOT_DIR_END_SECTOR = 32;
 const int SECTOR_SIZE_BYTES = 512;
 const int SECTOR_SIZE_ENTRIES = 16;
 const int ATTRIBUTE_BYTE = 12;
+const int TOTAL_SECTOR_COUNT_START_BYTE = 19;
+const int TOTAL_SECTOR_COUNT_LENGTH_BYTES = 2;
 
 /*
  * Finds an entry with the specified attribute in the given sector within the file.

@@ -13,6 +13,8 @@ extern const int ROOT_DIR_END_SECTOR;
 extern const int SECTOR_SIZE_BYTES;
 extern const int SECTOR_SIZE_ENTRIES;
 extern const int ATTRIBUTE_BYTE;
+extern const int TOTAL_SECTOR_COUNT_START_BYTE;
+extern const int TOTAL_SECTOR_COUNT_LENGTH_BYTES;
 
 char* find_entry (FILE* file, char attribute, long int sector_start_byte);
 
