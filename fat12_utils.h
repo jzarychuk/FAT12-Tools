@@ -16,6 +16,6 @@ extern const int ATTRIBUTE_BYTE;
 extern const int TOTAL_SECTOR_COUNT_START_BYTE;
 extern const int TOTAL_SECTOR_COUNT_LENGTH_BYTES;
 
-char* find_entry (FILE* file, char attribute, long int sector_start_byte);
+char* find_directory_entry (FILE* file, char attribute, long int sector_start_byte);
 
 #endif

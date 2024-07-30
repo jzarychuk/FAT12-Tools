@@ -48,7 +48,7 @@ char* get_label(FILE* file) {
 
                 // Iterate through each sector in root directory
                 for (int sector_offset = 0; sector_offset < root_dir_length_bytes; sector_offset += SECTOR_SIZE_BYTES) {
-                        entry = find_entry(file, 0x08, root_dir_start_byte + sector_offset);
+                        entry = find_directory_entry(file, 0x08, root_dir_start_byte + sector_offset);
                         if (entry != NULL) {
                                 strncpy(label, entry, 11); // Copy the first 11 characters of the entry into the label
                                 free(entry);

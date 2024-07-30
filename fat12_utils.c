@@ -15,7 +15,7 @@ const int TOTAL_SECTOR_COUNT_START_BYTE = 19;
 const int TOTAL_SECTOR_COUNT_LENGTH_BYTES = 2;
 
 /*
- * Finds an entry with the specified attribute in the given sector within the file.
+ * Finds a directory entry with the specified attribute in the given sector within the file.
  * The caller is responsible for freeing the returned memory.
  *
  * @param file The file pointer.
@@ -23,7 +23,7 @@ const int TOTAL_SECTOR_COUNT_LENGTH_BYTES = 2;
  * @param sector_start_byte The starting byte of the sector.
  * @return A pointer to the matched entry or NULL if no entry is found.
  */
-char* find_entry (FILE* file, char attribute, long int sector_start_byte) {
+char* find_directory_entry (FILE* file, char attribute, long int sector_start_byte) {
 
         size_t entry_size_bytes = SECTOR_SIZE_BYTES / SECTOR_SIZE_ENTRIES;
         char* entry = calloc(entry_size_bytes + 1, sizeof(char));
