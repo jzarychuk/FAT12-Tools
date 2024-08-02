@@ -10,7 +10,7 @@ const int ROOT_DIR_START_SECTOR = 19;
 const int ROOT_DIR_END_SECTOR = 32;
 const int SECTOR_SIZE_BYTES = 512;
 const int SECTOR_SIZE_ENTRIES = 16;
-const int ATTRIBUTE_BYTE = 12;
+const int DIR_ENTRY_ATTRIBUTE_BYTE = 11;
 const int TOTAL_SECTOR_COUNT_START_BYTE = 19;
 const int TOTAL_SECTOR_COUNT_LENGTH_BYTES = 2;
 
@@ -51,7 +51,7 @@ char* find_directory_entry (FILE* file, char attribute, long int sector_start_by
                 }
 
                 // Check attribute byte and return entry upon match
-                if (entry[ATTRIBUTE_BYTE - 1] == attribute) {
+                if (entry[DIR_ENTRY_ATTRIBUTE_BYTE] == attribute) {
                         return entry;
                 }
 
