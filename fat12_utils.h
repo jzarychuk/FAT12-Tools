@@ -13,12 +13,12 @@ extern const int ROOT_DIR_END_SECTOR;
 extern const int SECTOR_SIZE_BYTES;
 extern const int SECTOR_SIZE_ENTRIES;
 extern const int ATTRIBUTE_BYTE;
-extern const int SECTORS_PER_FAT_START_BYTE;
-extern const int SECTORS_PER_FAT_LENGTH_BYTES;
 extern const int TOTAL_SECTOR_COUNT_START_BYTE;
 extern const int TOTAL_SECTOR_COUNT_LENGTH_BYTES;
 extern const int FAT_START_SECTOR;
 extern const int BIT_LENGTH;
+extern const int SECTORS_PER_FAT_START_BYTE;
+extern const int SECTORS_PER_FAT_LENGTH_BYTES;
 extern const int NUM_FAT_COPIES_START_BYTE;
 extern const int NUM_FAT_COPIES_LENGTH_BYTES;
 
