@@ -19,6 +19,8 @@ extern const int TOTAL_SECTOR_COUNT_START_BYTE;
 extern const int TOTAL_SECTOR_COUNT_LENGTH_BYTES;
 extern const int FAT_START_SECTOR;
 extern const int BIT_LENGTH;
+extern const int NUM_FAT_COPIES_START_BYTE;
+extern const int NUM_FAT_COPIES_LENGTH_BYTES;
 
 char* find_directory_entry (FILE* file, char attribute, long int sector_start_byte);
 

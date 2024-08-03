@@ -162,7 +162,7 @@ int get_unused_sector_count(FILE* file) {
 
 }
 
-// Function to get the number of sectors per FAT of the provided disk image
+// Function to get the number of sectors per FAT in the provided disk image
 uint16_t get_sectors_per_fat(FILE* file){
 
         uint16_t sectors_per_fat = 0;
@@ -182,6 +182,29 @@ uint16_t get_sectors_per_fat(FILE* file){
         }
 
         return sectors_per_fat;
+
+}
+
+// Function to get the number of FAT copies in the provided disk image
+uint8_t get_num_fat_copies(FILE* file){
+
+        uint8_t num_fat_copies = 0;
+
+        // Seek to position of number of FAT copies in boot sector
+        if (fseek(file, NUM_FAT_COPIES_START_BYTE, SEEK_SET) != 0) { // Move file pointer NUM_FAT_COPIES_START_BYTE number of bytes relative to start of file
+                perror("Error seeking to number of FAT copies position of boot sector");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+        // Read the number of FAT copies from boot sector
+        if (fread(&num_fat_copies, 1, NUM_FAT_COPIES_LENGTH_BYTES, file) != NUM_FAT_COPIES_LENGTH_BYTES) { // Read one byte at a time into num_fat_copies for NUM_FAT_COPIES_LENGTH_BYTES number of times
+                perror("Error reading number of FAT copies");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+        return num_fat_copies;
 
 }
 
@@ -214,11 +237,15 @@ int main (int argc, char* argv[]) {
         // Get the number of sectors per FAT
         uint16_t sectors_per_fat = get_sectors_per_fat(file);
 
+	// Get the number of FAT copies
+	uint8_t num_fat_copies = get_num_fat_copies(file);
+
 	fprintf(stdout, "OS Name: %s\n", os_name);
 	fprintf(stdout, "Label of the disk: %s\n", label);
 	fprintf(stdout, "Total size of the disk: %.0f\n", total_size);
 	fprintf(stdout, "Free size of the disk: %.0f\n", free_size);
 	fprintf(stdout, "Number of sectors per FAT: %" PRIu16 "\n", sectors_per_fat);
+	fprintf(stdout, "Number of FAT copies: %" PRIu8 "\n", num_fat_copies);
 
 	free(label);
 	free(os_name);
