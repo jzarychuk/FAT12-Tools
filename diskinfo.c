@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <inttypes.h>
 
 // Function to check whether the char array for the label has changed from when it was initialized to all zeros
 int is_label_unchanged (char* label) {
@@ -86,6 +87,29 @@ char* get_os_name(FILE* file) {
         }
 
 	return os_name;
+
+}
+
+// Function to get the number of sectors per FAT of the provided disk image
+uint16_t get_sectors_per_fat(FILE* file){
+
+	uint16_t sectors_per_fat = 0;
+
+	// Seek to position of sectors per FAT in boot sector
+	if (fseek(file, SECTORS_PER_FAT_START_BYTE, SEEK_SET) != 0) { // Move file pointer SECTORS_PER_FAT_START_BYTE number of bytes relative to start of file
+        	perror("Error seeking to sectors per FAT position of boot sector");
+                fclose(file);
+        	exit(EXIT_FAILURE);
+        }
+
+	// Read the sectors per FAT from boot sector
+	if (fread(&sectors_per_fat, 1, SECTORS_PER_FAT_LENGTH_BYTES, file) != SECTORS_PER_FAT_LENGTH_BYTES) { // Read one byte at a time into sectors_per_fat for SECTORS_PER_FAT_LENGTH_BYTES number of times
+                perror("Error reading sectors per FAT");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	return sectors_per_fat;
 
 }
 
@@ -181,6 +205,9 @@ int main (int argc, char* argv[]) {
 	// Get the label
 	char* label = get_label(file);
 
+	// Get the number of sectors per FAT
+	uint16_t sectors_per_fat = get_sectors_per_fat(file);
+
 	// Calculate the total size
 	float total_size = get_total_sector_count(file) * SECTOR_SIZE_BYTES;
 
@@ -191,6 +218,7 @@ int main (int argc, char* argv[]) {
 	fprintf(stdout, "Label of the disk: %s\n", label);
 	fprintf(stdout, "Total size of the disk: %.0f\n", total_size);
 	fprintf(stdout, "Free size of the disk: %.0f\n", free_size);
+	fprintf(stdout, "Number of sectors per FAT: %" PRIu16 "\n", sectors_per_fat);
 
 	free(label);
 	free(os_name);
