@@ -13,6 +13,8 @@ const int SECTOR_SIZE_ENTRIES = 16;
 const int DIR_ENTRY_ATTRIBUTE_BYTE = 11;
 const int TOTAL_SECTOR_COUNT_START_BYTE = 19;
 const int TOTAL_SECTOR_COUNT_LENGTH_BYTES = 2;
+const int FAT_START_SECTOR = 1;
+const int BIT_LENGTH = 12;
 
 /*
  * Finds a directory entry with the specified attribute in the given sector within the file.

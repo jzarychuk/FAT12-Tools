@@ -111,6 +111,56 @@ uint16_t get_total_sector_count(FILE* file) {
 
 }
 
+// Function to get the unused sector count of the provided disk image
+int get_unused_sector_count(FILE* file) {
+
+	uint16_t total_sector_count = get_total_sector_count(file);
+	int unused_sector_count = 0;
+
+        // Seek to position of first FAT table
+        int fat1_start_byte = FAT_START_SECTOR * SECTOR_SIZE_BYTES;
+        if (fseek(file, fat1_start_byte, SEEK_SET) != 0) { // Move file pointer fat1_start_byte number of bytes relative to start of file
+                perror("Error seeking to first FAT table");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	// Allocate memory for binary data
+        size_t num_bytes = BIT_LENGTH * 2 / 8;
+        char* entries = calloc(num_bytes, sizeof(char));
+        if (entries == NULL) {
+                perror("Memory allocation failed");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	// Iterate through fat entries in pairs, where each entry maps to a physical sector within the total sector count range (skipping the first two entries, since they are reserved)
+        for (int fat_entry_number = 2; (33 + fat_entry_number - 2) < total_sector_count; fat_entry_number += 2) {
+
+		// Read one byte at a time into entries for num_bytes number of times
+                if (fread(entries, 1, num_bytes, file) != num_bytes) {
+                        perror("Error reading reading entries");
+                        fclose(file);
+                        exit(EXIT_FAILURE);
+                }
+
+                uint16_t entry1 = (entries[0] << 4) | (entries[1] >> 4); // Extract the first 12 bits
+                uint16_t entry2 = ((entries[1] & 0x0F) << 8) | entries[2]; // Extract the second 12 bits
+
+                if ((entry1 & 0x0FFF) == 0x000) { // Compare only the lower 12 bits of entry1 to 0x000
+                        unused_sector_count++;
+                }
+                if ((entry2 & 0x0FFF) == 0x000) { // Compare only the lower 12 bits of entry2 to 0x000
+                        unused_sector_count++;
+                }
+
+        }
+
+	free(entries);
+	return unused_sector_count;
+
+}
+
 int main (int argc, char* argv[]) {
 
 	if (argc < 2) {
@@ -134,9 +184,13 @@ int main (int argc, char* argv[]) {
 	// Calculate the total size
 	float total_size = get_total_sector_count(file) * SECTOR_SIZE_BYTES;
 
+        // Calculate the free size
+	float free_size = get_unused_sector_count(file) * SECTOR_SIZE_BYTES;
+	
 	fprintf(stdout, "OS Name: %s\n", os_name);
 	fprintf(stdout, "Label of the disk: %s\n", label);
 	fprintf(stdout, "Total size of the disk: %.0f\n", total_size);
+	fprintf(stdout, "Free size of the disk: %.0f\n", free_size);
 
 	free(label);
 	free(os_name);
