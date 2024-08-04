@@ -162,6 +162,97 @@ int get_unused_sector_count(FILE* file) {
 
 }
 
+// Function to get the first logical cluster of the provided directory entry
+uint16_t get_first_logical_cluster (char* entry) {
+
+	return (uint16_t)((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE1] | ((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE2] << 8));
+
+}
+
+// Function to get the file size of the provided directory entry
+uint32_t get_file_size (char* entry) {
+
+	uint32_t file_size = 0;
+	for (int i = 0; i < FILE_SIZE_LENGTH_BYTES; i++) {
+        	file_size |= (uint32_t)((unsigned char)entry[FILE_SIZE_START_BYTE + i]) << (8 * i);
+	}
+    
+	return file_size;
+
+}
+
+// Function to get the number of files in the provided disk image, starting from the specified byte, and spanning the specified number of sectors
+int get_num_files(FILE* file, long int dir_start_byte, int dir_length_sectors) {
+
+	int num_files = 0;
+
+	// Seek to position of directory
+	if (fseek(file, dir_start_byte, SEEK_SET) != 0) { // Move file pointer dir_start_byte number of bytes relative to start of file
+                perror("Error seeking to directory");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	// Allocate memory for binary data
+	size_t entry_size_bytes = SECTOR_SIZE_BYTES / SECTOR_SIZE_ENTRIES;
+        char* entry = calloc(entry_size_bytes, sizeof(char));
+        if (entry == NULL) {
+                perror("Memory allocation failed");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	// Read all entries in directory
+	for (int sector_offset = 0; sector_offset < dir_length_sectors; sector_offset++) { // Traverse all sectors of directory
+		for (int i = 0; i < SECTOR_SIZE_ENTRIES; i++) { // Traverse all entries of sector
+
+			// Read the entry
+                	if (fread(entry, 1, 32, file) != 32) {
+                        	perror("Error reading entry");
+                        	fclose(file);
+                        	exit(EXIT_FAILURE);
+                	}
+
+			// Skip the entry if first logical cluster is 0 or 1
+			uint16_t first_logical_cluster = get_first_logical_cluster(entry);
+			if (first_logical_cluster == 0 || first_logical_cluster == 1) {
+				continue;
+			}
+			
+			// Skip the entry if attribute is 0x0F (indicating entry is part of a long file name)
+			if (entry[DIR_ENTRY_ATTRIBUTE_BYTE] == 0x0F) {
+				continue;
+			}
+
+			// Skip the entry if first byte is 0xE5 (indicating entry is free)
+			if (entry[0] == 0xE5) {
+				continue;
+			}
+
+			// Skip the entry if volume label bit of attribute is set
+			if (entry[DIR_ENTRY_ATTRIBUTE_BYTE] & ATTRIBUTE_VOLUME_LABEL_BIT_MASK) {
+				continue;
+			}
+
+			// If the entry is a subdirectory, traverse it first, then skip it
+			if (entry[DIR_ENTRY_ATTRIBUTE_BYTE] & ATTRIBUTE_SUBDIRECTORY_BIT_MASK) {
+				long int subdir_start_byte = (33 + first_logical_cluster - 2) * SECTOR_SIZE_BYTES;
+				uint32_t subdir_file_size = get_file_size(entry);
+				int subdir_length_sectors = (subdir_file_size + SECTOR_SIZE_BYTES - 1) / SECTOR_SIZE_BYTES;
+				get_num_files(file, subdir_start_byte, subdir_length_sectors);
+				continue;
+			}
+
+			num_files++;
+
+		}
+	}
+
+	free(entry);
+	return num_files;
+
+}
+
 // Function to get the number of sectors per FAT in the provided disk image
 uint16_t get_sectors_per_fat(FILE* file){
 
@@ -233,6 +324,11 @@ int main (int argc, char* argv[]) {
 
         // Calculate the free size
 	float free_size = get_unused_sector_count(file) * SECTOR_SIZE_BYTES;
+
+	// Calculate the number of files
+	long int root_dir_start_byte = ROOT_DIR_START_SECTOR * SECTOR_SIZE_BYTES;
+	int root_dir_length_sectors = ROOT_DIR_END_SECTOR - ROOT_DIR_START_SECTOR + 1;
+	int num_files = get_num_files(file, root_dir_start_byte, root_dir_length_sectors);
 	
         // Get the number of sectors per FAT
         uint16_t sectors_per_fat = get_sectors_per_fat(file);
@@ -244,6 +340,7 @@ int main (int argc, char* argv[]) {
 	fprintf(stdout, "Label of the disk: %s\n", label);
 	fprintf(stdout, "Total size of the disk: %.0f\n", total_size);
 	fprintf(stdout, "Free size of the disk: %.0f\n", free_size);
+	fprintf(stdout, "Number of files in the disk: %d\n", num_files);
 	fprintf(stdout, "Number of sectors per FAT: %" PRIu16 "\n", sectors_per_fat);
 	fprintf(stdout, "Number of FAT copies: %" PRIu8 "\n", num_fat_copies);
 
