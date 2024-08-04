@@ -346,6 +346,7 @@ int main (int argc, char* argv[]) {
 
 	free(label);
 	free(os_name);
+	fclose(file);
 	return 0;
 
 }
