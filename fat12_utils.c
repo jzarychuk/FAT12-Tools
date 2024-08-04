@@ -1,6 +1,7 @@
 #include "fat12_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 const int OS_NAME_START_BYTE = 3;
 const int OS_NAME_LENGTH_BYTES = 8;
@@ -71,5 +72,24 @@ char* find_directory_entry (FILE* file, char attribute, long int sector_start_by
 
         free(entry);
         return NULL;
+
+}
+
+// Function to get the first logical cluster of the provided directory entry
+uint16_t get_first_logical_cluster (char* entry) {
+
+        return (uint16_t)((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE1] | ((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE2] << 8));
+
+}
+
+// Function to get the file size of the provided directory entry
+uint32_t get_file_size (char* entry) {
+
+        uint32_t file_size = 0;
+        for (int i = 0; i < FILE_SIZE_LENGTH_BYTES; i++) {
+                file_size |= (uint32_t)((unsigned char)entry[FILE_SIZE_START_BYTE + i]) << (8 * i);
+        }
+
+        return file_size;
 
 }

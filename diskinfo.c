@@ -162,25 +162,6 @@ int get_unused_sector_count(FILE* file) {
 
 }
 
-// Function to get the first logical cluster of the provided directory entry
-uint16_t get_first_logical_cluster (char* entry) {
-
-	return (uint16_t)((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE1] | ((unsigned char)entry[FIRST_LOGICAL_CLUSTER_BYTE2] << 8));
-
-}
-
-// Function to get the file size of the provided directory entry
-uint32_t get_file_size (char* entry) {
-
-	uint32_t file_size = 0;
-	for (int i = 0; i < FILE_SIZE_LENGTH_BYTES; i++) {
-        	file_size |= (uint32_t)((unsigned char)entry[FILE_SIZE_START_BYTE + i]) << (8 * i);
-	}
-    
-	return file_size;
-
-}
-
 // Function to get the number of files in the provided disk image, starting from the specified byte, and spanning the specified number of sectors
 int get_num_files(FILE* file, long int dir_start_byte, int dir_length_sectors) {
 

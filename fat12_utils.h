@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 extern const int OS_NAME_START_BYTE;
 extern const int OS_NAME_LENGTH_BYTES;
@@ -29,5 +30,7 @@ extern const int NUM_FAT_COPIES_START_BYTE;
 extern const int NUM_FAT_COPIES_LENGTH_BYTES;
 
 char* find_directory_entry (FILE* file, char attribute, long int sector_start_byte);
+uint16_t get_first_logical_cluster (char* entry);
+uint32_t get_file_size (char* entry);
 
 #endif
