@@ -26,6 +26,14 @@ const int SECTORS_PER_FAT_START_BYTE = 22;
 const int SECTORS_PER_FAT_LENGTH_BYTES = 2;
 const int NUM_FAT_COPIES_START_BYTE = 16;
 const int NUM_FAT_COPIES_LENGTH_BYTES = 1;
+const int FILENAME_START_BYTE = 0;
+const int FILENAME_LENGTH_BYTES = 8;
+const int EXTENSION_START_BYTE = 8;
+const int EXTENSION_LENGTH_BYTES = 3;
+const int FILE_CREATE_DATE_START_BYTE = 16;
+const int FILE_CREATE_DATE_LENGTH_BYTES = 2;
+const int FILE_CREATE_TIME_START_BYTE = 14;
+const int FILE_CREATE_TIME_LENGTH_BYTES = 2;
 
 /*
  * Finds a directory entry with the specified attribute in the given sector within the file.
@@ -91,5 +99,25 @@ uint32_t get_file_size (char* entry) {
         }
 
         return file_size;
+
+}
+
+// Function to read a field of data from the provided directory entry in the provided disk image
+char* read_directory_entry_data (FILE* file, char* entry, int start_byte, int length_bytes) {
+
+        // Allocate memory for string
+        char* data = (char*)calloc(length_bytes + 1, sizeof(char));
+        if (data == NULL) {
+                perror("Memory allocation failed");
+                fclose(file);
+                exit(EXIT_FAILURE);
+        }
+
+	// Copy the relevant bytes from the entry into data
+        for (int i = 0; i < length_bytes; i++) {
+                data[i] = entry[start_byte + i];
+        }
+
+	return data;
 
 }
