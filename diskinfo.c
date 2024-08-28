@@ -78,7 +78,7 @@ char* get_label(FILE* file) {
 int get_unused_sector_count(FILE* file) {
 
 	char* total_sector_count_data = read_boot_sector_data(file, TOTAL_SECTOR_COUNT_START_BYTE, TOTAL_SECTOR_COUNT_LENGTH_BYTES);
-        uint16_t total_sector_count = (uint16_t)((unsigned char)total_sector_count_data[0]) | (unsigned char)total_sector_count_data[1] << 8;
+        uint16_t total_sector_count = ((unsigned char)total_sector_count_data[0]) | (unsigned char)total_sector_count_data[1] << 8;
         free(total_sector_count_data);
 	int unused_sector_count = 0;
 
@@ -220,7 +220,7 @@ int main (int argc, char* argv[]) {
 
 	// Calculate the total size
 	char* total_sector_count_data = read_boot_sector_data(file, TOTAL_SECTOR_COUNT_START_BYTE, TOTAL_SECTOR_COUNT_LENGTH_BYTES);
-        uint16_t total_sector_count = (uint16_t)((unsigned char)total_sector_count_data[0]) | (unsigned char)total_sector_count_data[1] << 8;
+        uint16_t total_sector_count = ((unsigned char)total_sector_count_data[0]) | (unsigned char)total_sector_count_data[1] << 8;
 	free(total_sector_count_data);
 	float total_size = total_sector_count * SECTOR_SIZE_BYTES;
 
@@ -234,12 +234,12 @@ int main (int argc, char* argv[]) {
 	
         // Get the number of sectors per FAT
         char* sectors_per_fat_data = read_boot_sector_data(file, SECTORS_PER_FAT_START_BYTE, SECTORS_PER_FAT_LENGTH_BYTES);
-	uint16_t sectors_per_fat = (uint16_t)((unsigned char)sectors_per_fat_data[0]) | (unsigned char)sectors_per_fat_data[1] << 8;
+	uint16_t sectors_per_fat = ((unsigned char)sectors_per_fat_data[0]) | (unsigned char)sectors_per_fat_data[1] << 8;
 	free(sectors_per_fat_data);
 
 	// Get the number of FAT copies
 	char* num_fat_copies_data = read_boot_sector_data(file, NUM_FAT_COPIES_START_BYTE, NUM_FAT_COPIES_LENGTH_BYTES);
-	uint8_t num_fat_copies = (uint8_t)(unsigned char)num_fat_copies_data[0];
+	uint8_t num_fat_copies = (unsigned char)num_fat_copies_data[0];
 	free(num_fat_copies_data);
 
 	fprintf(stdout, "OS Name: %s\n", os_name);
