@@ -242,13 +242,13 @@ int main (int argc, char* argv[]) {
 	uint8_t num_fat_copies = (unsigned char)num_fat_copies_data[0];
 	free(num_fat_copies_data);
 
-	fprintf(stdout, "OS Name: %s\n", os_name);
-	fprintf(stdout, "Label of the disk: %s\n", label);
-	fprintf(stdout, "Total size of the disk: %.0f\n", total_size);
-	fprintf(stdout, "Free size of the disk: %.0f\n", free_size);
-	fprintf(stdout, "Number of files in the disk: %d\n", num_files);
-	fprintf(stdout, "Number of sectors per FAT: %" PRIu16 "\n", sectors_per_fat);
-	fprintf(stdout, "Number of FAT copies: %" PRIu8 "\n", num_fat_copies);
+	fprintf(stdout, "%-12s %s\n", "OS:", os_name);
+	fprintf(stdout, "%-12s %s\n", "Label:", label);
+	fprintf(stdout, "%-12s %.0f\n", "Total Size:", total_size);
+	fprintf(stdout, "%-12s %.0f\n", "Free Size:", free_size);
+	fprintf(stdout, "%-12s %d\n", "File Count:", num_files);
+	fprintf(stdout, "%-12s %" PRIu16 "\n", "Sectors/FAT:", sectors_per_fat);
+	fprintf(stdout, "%-12s %" PRIu8 "\n", "FAT Copies:", num_fat_copies);
 
 	free(label);
 	free(os_name);
